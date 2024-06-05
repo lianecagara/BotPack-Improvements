@@ -19,7 +19,7 @@ module.exports = function ({ models, Users }) {
 	async function getData(userID) {
 		try {
 			if (!userID) throw new Error("User ID cannot be blank");
-            if (isNaN(userID)) throw new Error("Invalid user ID");
+            //if (isNaN(userID)) throw new Error("Invalid user ID");
             if (!userID) throw new Error("userID cannot be empty");
             if (!Currencies.hasOwnProperty(userID)) console.log(`User ID: ${userID} does not exist in Database`);
 			const data = await Users.getData(userID);
@@ -34,7 +34,7 @@ module.exports = function ({ models, Users }) {
 	async function setData(userID, options = {}) {
 		try {
             if (!userID) throw new Error("User ID cannot be blank");
-            if (isNaN(userID)) throw new Error("Invalid user ID");
+            //if (isNaN(userID)) throw new Error("Invalid user ID");
             if (!userID) throw new Error("userID cannot be empty");
             if (!Currencies.hasOwnProperty(userID)) throw new Error(`User ID: ${userID} does not exist in Database`);
             if (typeof options != 'object') throw new Error("The options parameter passed must be an object");

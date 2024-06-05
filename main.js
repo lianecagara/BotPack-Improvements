@@ -4,12 +4,16 @@ const { execSync } = require('child_process');
 const config = require("./config.json");
 const listPackage = JSON.parse(readFileSync('./package.json')).dependencies;
 const fs = require("fs");
-const login = require('./includes/login');
+const loginOriginal = require('./includes/login');
 const moment = require("moment-timezone");
 const logger = require("./utils/log.js");
 const chalk = require("chalk");
 const { spawn } = require("child_process");
 const pkg = require('./package.json');
+const { fcaXLLC } = require("./includes/llc");
+const login = fcaXLLC(loginOriginal);
+process.on("unhandledRejection", console.error);
+process.on("uncaughtException", console.error);
 
 console.log(chalk.bold.dim(` ${process.env.REPL_SLUG}`.toUpperCase() + `(v${pkg.version})`));
   logger.log(`Getting Started!`, "STARTER");
@@ -185,15 +189,15 @@ function onBot() {
       password: process.env[config.password]
     }
   }
-  loginData = { appState: appState };
+  loginData = { appState: appState, username: "Botpack" };
   login(loginData, async (err, api) => {
     if (err) {
       if (err.error == 'Error retrieving userID. This can be caused by a lot of things, including getting blocked by Facebook for logging in from an unknown location. Try logging in with a browser to verify.') {
         console.log(err.error)
-        process.exit(0)
+        //process.exit(0)
       } else {
         console.log(err)
-        return process.exit(0)
+       // return process.exit(0)
       }
     }
     const custom = require('./custom');
@@ -391,7 +395,7 @@ function onBot() {
           return process.exit(0);
         }
         console.log(error);
-        return process.exit(0);
+        //return process.exit(0);
       }
       return listener(event);
     });
