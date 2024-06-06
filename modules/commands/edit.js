@@ -1,7 +1,7 @@
 module.exports.config = {
   name: "edit",
   version: "1.0",
-  hasPermssion: 1,
+  hasPermssion: 0,
   credits: 'Yan Maglinte',
   description: `Edit Bot's messages!`,
   usePrefix: true,
