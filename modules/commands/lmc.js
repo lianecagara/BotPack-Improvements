@@ -43,6 +43,7 @@ class LMC {
       });
       return i;
     } catch (error) {
+      console.log(error);
       return box.error(error);
     }
   }
@@ -53,7 +54,7 @@ class LMC {
     if (this[type]) {
       return this[type](context);
     }
-    const { pushMsg } = context;
+    const { pushMsg, box } = context;
 
     const allTypes = Object.getOwnPropertyNames(LMC.prototype)
       .filter((key) => key.startsWith("handle$"))
@@ -63,7 +64,33 @@ class LMC {
         const guide = this.handlerGuide[cleanKey] ?? "";
         return `${PREFIX}lmc ${cleanKey} ${guide}`;
       });
-    return pushMsg(allTypes.join("\n"));
+    box.listen();
+    setTimeout(() => {
+      try {
+        box.close();
+      } catch {}
+    }, 60 * 1000);
+    const boxA = box;
+    box.waitForReply(
+      `${this.logo}\n\n${allTypes.join("\n")}\n\nYou can also reply to this message.`,
+      async ({ event, box, resolve }) => {
+        try {
+          await this.main({
+            ...context,
+            event,
+            box,
+            args: event.body.split(" ").filter(Boolean),
+          });
+          try {
+            boxA.close();
+          } catch {}
+          resolve();
+        } catch (error) {
+          box.error(error);
+          console.error(error);
+        }
+      },
+    );
   }
 
   handlerGuide = {

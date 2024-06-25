@@ -17,9 +17,13 @@ class LLCBot {
     this.onlineUsers = [];
     this.isLocal = !!local;
     this.port = port;
+    this.hasListen = false;
   }
 
   async startListening(callback) {
+    if (this.hasListen) {
+      return;
+    }
     let { token, username, url } = this;
     console.log("Listening started!");
     if (!token) {
@@ -41,9 +45,8 @@ class LLCBot {
     const { ws } = this;
 
     ws.onopen = (i) => {
-      if (typeof this.onFuncs.ws_open == "function") {
-        this.onFuncs.ws_open(i);
-      }
+      this.callFunc("ws_open", i);
+      this.hasListen = true;
       this.wsSend({
         type: "presence",
       });
@@ -52,10 +55,8 @@ class LLCBot {
 
     ws.onmessage = (info) => this.handleListen(info);
     ws.onclose = () => {
-      if (typeof this.onFuncs.ws_close == "function") {
-        this.onFuncs.ws_close();
-        this.startListening(callback);
-      }
+      this.callFunc("ws_close");
+      this.startListening(callback);
     };
 
     ws.onerror = (error) => {
@@ -97,17 +98,24 @@ class LLCBot {
       return;
     }
     //console.log(event);
-    const onFunc = this.onFuncs[event.type];
-    if (typeof onFunc === "function") {
-      onFunc(event);
-    }
+    this.callFunc(event.type, event);
     this.#onEvent(event);
   }
 
   on(...args) {
     const [callback, ...types] = args.reverse();
     for (const type of types) {
-      this.onFuncs[type] = callback;
+      this.onFuncs[type] ??= [];
+      this.onFuncs[type].push(callback);
+    }
+  }
+  callFunc(type, ...args) {
+    for (const callback of this.onFuncs[type] ?? []) {
+      try {
+        callback(...args);
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 
