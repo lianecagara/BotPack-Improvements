@@ -32,7 +32,7 @@
     "cheerio": "^1.0.0-rc.12",
     "child_process": "^1.0.2",
     "express": "^4.19.2",
-    "fca-liane-utils": "^1.2.6",
+    "fca-liane-utils": "^1.4.0",
     "fontstyles": "^1.0.5",
     "form-data": "^4.0.0",
     "fs-extra": "^11.2.0",
@@ -56,7 +56,7 @@
     "simple-youtube-api": "^5.2.1",
     "string-similarity": "^4.0.4",
     "websocket-stream": "^5.5.2",
-    "youtube-search-api": "^1.2.1"
+    "youtube-search-api": "^1.2.2"
   },
   "repository": {
     "type": "git",

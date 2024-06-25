@@ -1,6 +1,6 @@
-/* Make sure to have Botpack 1.7.6 before installing! */
+/* Make sure to have Botpack ^1.7.6 before installing! */
 
-module.exports.config = {
+module.exports["config"] = {
   name: "chesca",
   version: "1.0.0",
   hasPermssion: 0,
@@ -13,10 +13,10 @@ module.exports.config = {
   cooldowns: 5,
 };
 
-module.exports.run = async function ({ box, args, api, event }) {
-  if (!box || !box?.fetch) {
+module.exports["run"] = async function ({ box, args, api, event }) {
+  if (!box || !box?.lianeAPI) {
     return api.sendMessage(
-      "Unsupported Version, please update your botpack.",
+      "Unsupported Version, please update your botpack, and run npm install.",
       event.threadID,
       event.messageID,
     );
