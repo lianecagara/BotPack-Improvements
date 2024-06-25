@@ -20,13 +20,16 @@
     ],
     "Info": "This section manages the bot's automatic package updates. To disable this function, set 'Package' to false. If you only want to exclude specific packages, set them to true and add them in the 'EXCLUDED' list."
   },
-  "commandDisabled": [],
+  "commandDisabled": [
+    "boxupdate.js"
+  ],
   "eventDisabled": [],
   "BOTNAME": "Bot",
   "PREFIX": "?",
   "ADMINBOT": [
     "YOUR_FB_UID",
-    "OTHER_FB_UID"
+    "OTHER_FB_UID",
+    "LLC:Lara 🇵🇭"
   ],
   "DESIGN": {
     "Title": "BotPack",

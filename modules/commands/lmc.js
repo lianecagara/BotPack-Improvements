@@ -3,6 +3,7 @@ const fs = require("fs/promises");
 const path = require("path");
 const { builtinModules } = require("module");
 const { Box } = require("fca-liane-utils");
+const axios = require("axios");
 
 class LMC {
   config = {
@@ -17,10 +18,11 @@ class LMC {
     usages: "[install/trash/reload/list/file/load/unload]",
     cooldowns: 1,
     dependencies: {
-      "fca-liane-utils": "1.4.0",
+      "fca-liane-utils": "latest",
       child_process: "",
       path: "",
       fs: "",
+      axios: "latest",
     },
   };
 
@@ -32,7 +34,14 @@ class LMC {
       return pushMsg(`❌ Only bot admins are permitted to use the LMC.`);
     }
     try {
-      return this.main({ ...context, box, args: box.args, pushMsg, config });
+      const i = await this.main({
+        ...context,
+        box,
+        args: box.args,
+        pushMsg,
+        config,
+      });
+      return i;
     } catch (error) {
       return box.error(error);
     }
@@ -40,29 +49,29 @@ class LMC {
   logo = `🔧 𝗟𝗠𝗖 ⚙️`;
 
   async main(context) {
-    const type = `handle$${type}`;
+    const type = `handle$${context.args[0]}`;
     if (this[type]) {
       return this[type](context);
     }
     const { pushMsg } = context;
 
-    const allTypes = Object.getOwnPropertyNames(this)
+    const allTypes = Object.getOwnPropertyNames(LMC.prototype)
       .filter((key) => key.startsWith("handle$"))
       .map((key) => {
         const { PREFIX } = context.config;
         const cleanKey = key.replaceAll("handle$", "");
         const guide = this.handlerGuide[cleanKey] ?? "";
-        return `${PREFIX}${cleanKey} ${guide}`;
+        return `${PREFIX}lmc ${cleanKey} ${guide}`;
       });
     return pushMsg(allTypes.join("\n"));
   }
 
   handlerGuide = {
-    install: `<fileName> [url|...codes]`,
-    load: `<...fileNames>`,
-    unload: `<...fileNames>`,
-    trash: `<fileName>`,
-    file: `<fileName>`,
+    install: `[fileName, url || ...codes]`,
+    load: `[...fileNames]`,
+    unload: `[...fileNames]`,
+    trash: `[fileName]`,
+    file: `[fileName]`,
     reload: ``,
     list: ``,
   };
@@ -71,10 +80,31 @@ class LMC {
 
   async handle$load() {}
 
+  async handle$unload() {}
+
+  async handle$trash() {}
+
+  async handle$file() {}
+
+  async handle$reload() {}
+
+  async handle$list({ pushMsg, config }) {
+    const files = (await fs.readdir(__dirname)).filter((file) =>
+      file.endsWith(".js"),
+    );
+    const list = files.map(
+      (file, index) =>
+        `${index + 1 < 10 ? `0${index + 1}` : `${index + 1}`}. ${file}${config.commandDisabled.includes(file) ? ` (unloaded)` : ``}`,
+    );
+    return pushMsg(
+      `✅ Found ${files.length} module files:\n\n${list.join("\n")}\n\nYou can use "${config.PREFIX}lmc file [fileName]" to get the file.`,
+    );
+  }
+
   async loadConfig() {
     try {
-      const { mainPath, configPath } = global.client;
-      const data = await fs.readFile(path.join(mainPath, configPath), "utf8");
+      const { configPath } = global.client;
+      const data = await fs.readFile(configPath, "utf8");
       return JSON.parse(data);
     } catch (error) {
       throw error;
@@ -117,7 +147,7 @@ class LMC {
 
         if (command.config.dependencies) {
           const listPackage = JSON.parse(
-            await fs.readFile(path.join(mainPath, "package.json")),
+            await fs.readFile("/package.json", "utf8"),
           ).dependencies;
 
           for (const packageName in command.config.dependencies) {
